@@ -1,0 +1,21 @@
+# Hyperbola GNU/Linux-libre - Last Updated: Wed Jun  7 20:28:57 CEST 2017
+
+# Location: Galicia, Spain
+# Responsible: Oficina de Software Libre do CIXUG
+# Work hours: 24*7
+# Server = https://ftp.cixug.es/hyperbola/gnu-plus-linux-libre/stable/$repo/os/$arch
+
+# Location: Vilnius, Lithuania
+# Responsible: Luke .R
+# Work hours: 24*7
+# Server = https://whatsgnu.serverpit.com/gnu-plus-linux-libre/stable/$repo/os/$arch
+
+# Location: Bissen, Luxembourg
+# Responsible: Hyperbola Project
+# Server = https://repo.hyperbola.info:50012/gnu-plus-linux-libre/stable/$repo/os/$arch
+
+# Location: Bissen, Luxembourg
+# Responsible: Hyperbola Project
+# Note: Only for development
+  Server = https://repo.hyperbola.info:50011/gnu-plus-linux-libre/testing/$repo/os/$arch
+
