@@ -1,6 +1,7 @@
 # Arch Linux
 
 ## General Criteria
+
 | Rating    | Security            | Explanation                             |
 |-----------|---------------------|-----------------------------------------|
 | Excellent | Very secure         | Criteria is met optimal                 |
