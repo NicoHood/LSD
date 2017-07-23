@@ -71,8 +71,8 @@
 |-----------|--------------------------|
 | Excellent | SHA512/Whirlpool         |
 | High      | SHA256/SHA384            |
-| Mid       | MD5/SHA1                 |
-| Low       | SKIP in archives         |
+| Mid       | SHA1                     |
+| Low       | MD5/SKIP in archives     |
 | N/A       | Only VCS/no sources used |
 
 <br>

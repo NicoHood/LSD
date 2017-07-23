@@ -1,5 +1,5 @@
 # Linux Security Database (LSD)
-LSD tracks the security status of software projects for various GNU/Linux distributions. This page contains project details and analysis results. Visit my [LSD GitHub repository](https://github.com/NicoHood/LSD) for the source code of this project.
+LSD tracks the security status of software projects for various GNU/Linux distributions. This page contains project details and analysis results. Visit the [LSD GitHub repository](https://github.com/NicoHood/LSD) for the source code of this project.
 
 This project is a work in progress and it is likely that the code and web pages change.
 
