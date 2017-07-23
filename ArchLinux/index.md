@@ -96,6 +96,7 @@
 {% include_relative total_package_security_table.div %}
 
 ## Threat Model
+
 ### GPG Key
 
 ### GPG Signature
