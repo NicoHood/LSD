@@ -1,29 +1,32 @@
 # Linux Security Database (LSD)
-## The work on LSD will start once [GPGit 2.0.0](https://github.com/NicoHood/gpgit/pull/5) is fully released.
+LSD tracks the security status of software projects for various GNU/Linux distributions. This page contains the source code and installing instructions. **Visit my [GitHub.io page](https://nicohood.github.io/LSD/) for the project details and analysis results.**
 
-LSD tracks the security status of Linux projects of various Linux projects and distributions.
-It identifies unsigned source archives as well as unused GPG signatures in packages.
-The maintainers of projects with potential of improvements will be notified and requested to use GPG signatures.
-[GPGit](https://github.com/NicoHood/gpgit) will help developers to get started with GPG source code signing.
-All information will be tracked in a database for a continual analysis and improvment.
-
-##### Per project analysis:
-* Availability of GPG signatures
-* Strength of GPG keys and signatures (RSA 4096 / SHA512)
-* Availability of strong hashes (SHA512/256)
-* Availability of HTTPS
-* Security of the dowload server
-* Link to bugtracker
-* Notes
-* Meta information (Name, Website, Mirrors, etc.)
-
-##### Per package analysis:
-* Usage of GPG signatures
-* Usage of strong hashes (SHA512/256)
-* Link to bugtracker
-* Notes
-* Meta information (Name, Version, Sources, etc.)
+This project is a work in progress and it is likely that the code and web pages change.
 
 ##### Supported distributions
-* ArchLinux & Derivate (Manjaro, Parabola, Hyperbola)
-* More planned
+* ArchLinux
+
+# Installation
+```bash
+sudo pacman -S --needed rethinkdb pacman namcap gnupg python python-gnupg git bash fakeroot
+pip install --user plotly progressbar2 rethinkdb
+```
+
+# Usage
+In order to get started create the default workdir folder, start a rethinkdb instance and run the lsd_cli tool.
+```bash
+# Start rethinkdb in another terminal
+rethinkdb
+
+# Create workdir and run analysis
+mkdir -p workdir
+./lsd_cli.sh -u -p -c -a -e
+
+# Rate the packages security of your system
+./lsd_cli.sh -e -s $(pacman -Qqe | paste -sd " " -)
+```
+
+## Backup
+* Create backup: `rethinkdb export`
+* Regenerate the whole database or table with primary keys: `./lsd_cli.sh -d lsd/archlinux/etc`
+* Import single table: `rethinkdb import -f rethinkdb_export/lsd/gpg.json --table lsd.gpg --force`
