@@ -3,7 +3,7 @@
 import sys
 import os
 from datetime import datetime
-import time #TODO
+import time
 import argparse
 import plotly
 from plotly.graph_objs import *
@@ -27,6 +27,7 @@ class LSA(object):
         self.force = force
         self.archlinux = archlinux
         self.gpg = gpg
+        self.time = time.strftime("%d/%m/%Y %H:%M:%S")
 
         # TODO import from local submodule?:
         # https://github.com/plotly/plotly.js/tree/fab0ba47b1db1a109476f17ad6b7f7e824eac0c1/dist
@@ -42,7 +43,7 @@ class LSA(object):
 
     def plot_gpg(self):
         trace = Pie(labels=self.gpg['algorithms'], values=self.gpg['counts'])
-        self.plot('GPG Key Distribution', [trace])
+        self.plot('GPG Key Distribution', [trace], timestamp=True)
 
     def plot_archlinux(self, data, name):
         # Prepare graph data
@@ -127,7 +128,7 @@ class LSA(object):
             # Default: Total
             traces[0]['visible'] = True
             title = buttons[0]['args'][1]['title']
-            self.plot(title, traces, updatemenus=updatemenus)
+            self.plot(title, traces, updatemenus=updatemenus, timestamp=True)
 
             # Add table and trace data to figure
             figure = ff.create_table(data_matrix, index=True)
@@ -139,6 +140,7 @@ class LSA(object):
                     index = row * columns + column
                     figure.layout.annotations[index].font.family='Courier New, monospace'
 
+            figure.layout.update({'title': title + ' Table'})
             self.plot_figure(figure)
 
             # # TODO renable https://github.com/plotly/plotly.py/issues/790
@@ -262,16 +264,37 @@ class LSA(object):
                     print(pkg['name'] + ': ' + ', '.join(pkg['avail_https']), file=text_file)
             print('Output written to', outfile)
 
-    def plot(self, title, trace, barmode=None, updatemenus=None):
+    def plot(self, title, trace, barmode=None, updatemenus=None, timestamp=False):
         if updatemenus:
             layout = Layout(title=title, barmode=barmode, updatemenus=updatemenus)
         else:
             layout = Layout(title=title, barmode=barmode)
         fig = Figure(data=trace, layout=layout)
-        self.plot_figure(fig)
+        self.plot_figure(fig, timestamp=timestamp)
 
-    def plot_figure(self, figure):
-        self.div += plotly.offline.plot(figure, include_plotlyjs=False, output_type='div', show_link=False)
+    def plot_figure(self, figure, timestamp=False):
+        if timestamp:
+            annotations =[
+                dict(
+                    text=self.time,
+                    x=1,
+                    y=0,
+                    xref="paper",
+                    yref="paper",
+                    showarrow=False,
+                )
+            ]
+            figure.layout.update({'annotations': annotations})
+
+        filename = figure.layout.title.lower().replace(' ', '_') + '.div'
+        div = plotly.offline.plot(figure, include_plotlyjs=False, output_type='div', show_link=False)
+        self.div += div + '\n'
+
+        path = os.path.join(self.output, filename)
+        with open(path, "w") as text_file:
+            print(div, file=text_file)
+            #print(div)
+        print('Output written to', path)
 
         # TODO export to png
         #plotly.offline.plot(figure, include_plotlyjs=False, output_type='png', show_link=False)
