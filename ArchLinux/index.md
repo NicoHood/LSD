@@ -17,9 +17,6 @@
 
 <div w3-include-html="test.html"></div>
 
-<script>
-w3.includeHTML();
-</script>
 
 ## GPG Key
 
@@ -28,3 +25,13 @@ w3.includeHTML();
 ## HTTPS
 
 ## Hash
+
+## Package
+
+<div w3-include-html="security_package.div"></div>
+
+
+
+<script>
+w3.includeHTML();
+</script>
