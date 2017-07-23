@@ -26,4 +26,4 @@
 
 ## Package
 
-{% include_relative security_package.md %}
+{% include_relative security_package.div %}
