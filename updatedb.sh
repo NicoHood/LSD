@@ -56,11 +56,10 @@ function init_archlinux {
 }
 
 function init_hyperbola {
-    # TODO update url
-    return
-    for repo in git://projects.archlinux.org/svntogit/{packages,community}.git
+    for repo in https://git.hyperbola.info:50100/packages/{core,extra,multilib,community}.git
     do
-        git clone ${repo} --depth=1
+        # TODO --depth=1 impossible
+        git clone ${repo}
     done
 }
 
@@ -105,7 +104,7 @@ done
 echo "Saving new pkglists"
 for DISTRIBUTION in "${distributions[@]}"
 do
-    echo "Saving pkglist.txt"
+    echo "Saving pkglist.txt for ${DISTRIBUTION}"
     mv "${WORKDIR}/${DISTRIBUTION}/db/pkglist.new.txt" "${WORKDIR}/${DISTRIBUTION}/db/pkglist.txt"
 done
 
