@@ -278,8 +278,10 @@ class ArchLinux(Table):
             return 'EXCELLENT'
         elif pkg['sha256sums'] or pkg['sha384sums']:
             return 'HIGH'
-        elif pkg['md5sums'] or pkg['sha1sums']:
+        elif pkg['sha1sums']:
             return 'MID'
+        elif pkg['md5sums']:
+            return 'LOW'
         else:
             sys.exit('Error: Unknown hash used')
 
