@@ -41,7 +41,7 @@ class Table(object):
                 r.db(self.db).table(self.table).index_create(self.index).run()
                 r.db(self.db).table(self.table).index_wait(self.index).run()
 
-    def insert(self, data, update=False, name=None):
+    def insert(self, data, update=False, replace=False, name=None):
         # Fill empty attributes
         # TODO filter not available attributes?
         if not update:
@@ -51,8 +51,13 @@ class Table(object):
 
         # Set conflict options
         conflict='error'
-        if update:
+        if update and replace:
+            self.logger.critical('Cannot use replace and update at the same time!')
+            sys.exit()
+        elif update:
             conflict='update'
+        elif replace:
+            conflict='replace'
 
         # Insert data
         ret = r.db(self.db).table(self.table).insert(data, conflict=conflict).run(self.conn)
@@ -68,6 +73,10 @@ class Table(object):
             self.logger.info('Unchanged %s', name)
         elif ret['replaced']:
             self.logger.info('Updated %s', name)
+        elif ret['errors']:
+            self.logger.critical('Error: %s', ret['first_error'])
+            sys.exit()
         else:
             self.logger.critical('Unknown database information')
+            print(ret)
             sys.exit()

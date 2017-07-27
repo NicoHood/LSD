@@ -91,7 +91,6 @@ class ArchLinux(Table):
             return
 
         # Parse every (split) package
-        packages = []
         for pkg in (pkginfo.subpackages if pkginfo.is_split else [pkginfo]):
             # Add package base information if available
             if "base" in pkginfo:
@@ -119,25 +118,7 @@ class ArchLinux(Table):
                     package[attribute] = pkg[attribute]
                 else:
                     package[attribute] = None
-            packages += [package]
-
-        # Skip empty packages (happens if package is not available in any repository)
-        if not packages:
-            return
-
-        # Insert new packages into database
-        ret = r.db(self.db).table(self.table).insert(packages, conflict='replace').run() # TODO self.conn?
-
-        # Print insert status
-        if ret['inserted']:
-            self.logger.info('Inserted', pkgname)
-        elif ret['replaced']:
-            self.logger.info('Replaced', pkgname)
-        elif ret['unchanged']:
-            self.logger.info('Unchanged', pkgname)
-        else:
-            print(ret)
-            sys.exit('Error: unknown database information')
+            self.insert(package, replace=True)
 
     def parse(self, path):
         # Read repositories from packages from local pkglist
@@ -448,31 +429,21 @@ class ArchLinux(Table):
     def analyze(self, packages=None):
         if packages:
             cursor = r.db(self.db).table(self.table).filter(lambda doc: r.expr(packages).contains(doc['name'])).run()
+            count = r.db(self.db).table(self.table).filter(lambda doc: r.expr(packages).contains(doc['name'])).count().run()
         else:
             cursor = r.db(self.db).table(self.table).run()
+            count = r.db(self.db).table(self.table).count().run()
 
         timestamp = int(time.time()) # TODO
-        print(timestamp)
 
-        for pkg in cursor:
-            new = self.analyze_pkg(pkg, timestamp)
-            if not new:
-                continue
+        # Analyze all packages
+        with progressbar.ProgressBar(max_value=count) as bar:
+            for i, pkg in enumerate(cursor):
+                bar.update(i)
 
-            # Insert new packages into database
-            ret = r.db(self.db).table(self.table).insert(pkg, conflict='update').run(self.conn)
-
-            # Print insert status
-            pkgname = pkg['name']
-            if ret['inserted']:
-                self.logger.info('Inserted', pkgname)
-            elif ret['replaced']:
-                self.logger.info('Updated', pkgname)
-            elif ret['unchanged']:
-                self.logger.info('Unchanged', pkgname)
-            else:
-                print(ret)
-                sys.exit('Error: unknown database information')
+                # Insert new packages into database
+                if self.analyze_pkg(pkg, timestamp):
+                    self.insert(pkg, update=True)
 
     def evaluate(self, packages=None):
         data = {}
