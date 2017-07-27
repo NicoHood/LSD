@@ -11,8 +11,7 @@ import subprocess
 import logging
 import progressbar
 
-# TODO https://github.com/WoLpH/python-progressbar/issues/129
-#progressbar.streams.wrap_stderr()
+progressbar.streams.wrap_stderr()
 
 logging.basicConfig(level=logging.DEBUG)
 logging.getLogger("requests").setLevel(logging.CRITICAL)
@@ -20,6 +19,7 @@ logging.getLogger("urllib3").setLevel(logging.CRITICAL)
 logging.getLogger("gnupg").setLevel(logging.WARNING)
 
 logging.getLogger("LSD.sources").setLevel(logging.INFO)
+logging.getLogger("LSD.archlinux").setLevel(logging.INFO)
 
 def main(arguments):
     """Main entry point that parses configs and creates LSD instance."""
@@ -32,7 +32,7 @@ def main(arguments):
     parser.add_argument('-o', '--output', help='Output path')
     parser.add_argument('-g', '--gnupghome', help='GNUPGHOME path. Can also be set via environment variable.')
 
-    parser.add_argument('-d', '--drop', choices= [LSD.db] + LSD.avail_tables, nargs='+', default=[], help='Drop the database and start with a fresh instance')
+    parser.add_argument('-d', '--drop', choices=[LSD.db] + LSD.avail_tables, nargs='+', default=[], help='Drop the database and start with a fresh instance')
     parser.add_argument('-p', '--parse', choices=LSD.avail_tables, nargs='*', help='Parses specified table, no arg = all')
     parser.add_argument('-a', '--analyze', choices=LSD.avail_tables, nargs='*', help='Analyze packages. No additional package == all packages')
     parser.add_argument('-f', '--force', choices=LSD.avail_tables, nargs='*', help='Force update for selected options')
