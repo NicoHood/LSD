@@ -140,12 +140,14 @@ class ArchLinux(Table):
             repo_path = os.path.join(repositories, repo)
             if "/." not in repo_path:
                 for package in next(os.walk(repo_path))[1]:
-                    pkgbuild = repo_path + "/" + package + "/trunk/PKGBUILD"
+                    pkgbuild = repo_path + "/" + package + "/PKGBUILD"
                     if "/." not in pkgbuild:
                         if not os.path.exists(pkgbuild):
-                            self.logger.error('PKGBUILD does not exist: %s', pkgbuild)
-                        else:
-                            self.parse_pkgbuild(pkgbuild, package, pkg_repo)
+                            pkgbuild = repo_path + "/" + package + "/trunk/PKGBUILD"
+                            if not os.path.exists(pkgbuild):
+                                self.logger.error('PKGBUILD does not exist: %s', pkgbuild)
+                                continue
+                        self.parse_pkgbuild(pkgbuild, package, pkg_repo)
 
         # TODO print missing PKGBUILDs for packages in repositories
         # TODO find duplicated PKGBUILDs in "packages" and "community" git repository (moved packages)
