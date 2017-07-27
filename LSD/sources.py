@@ -30,19 +30,24 @@ class Sources(Table):
         self.start()
 
     def parse(self, sources):
-        # Add all new sources
+        # Skip parsed sources
         available_sources = list(r.db(self.db).table(self.table)['url'].run())
-        for src in sources:
-            # Skip parsed sources
-            # TODO improve outside loop
-            if src in available_sources:
-                self.logger.info('Skipping %s', src)
-                continue
+        sources = [x for x in sources if x not in available_sources]
 
-            # Insert new packages into database
-            sha256 = hashlib.sha256(src.encode('utf-8')).hexdigest()
-            data = {'sha256': sha256, 'url': src}
-            self.insert(data, name=src)
+        # Don't show progressbar if count is zero
+        count = len(sources)
+        if not count:
+            return
+
+        # Add all new sources
+        with progressbar.ProgressBar(max_value=count) as bar:
+            for i, src in enumerate(sources):
+                bar.update(i)
+
+                # Insert new packages into database
+                sha256 = hashlib.sha256(src.encode('utf-8')).hexdigest()
+                data = {'sha256': sha256, 'url': src}
+                self.insert(data, name=src)
 
     def check_url(self, url):
         try:
