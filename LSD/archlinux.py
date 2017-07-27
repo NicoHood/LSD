@@ -8,6 +8,8 @@ import time
 from Namcap import package as namcap
 import rethinkdb as r
 import requests
+import logging
+import progressbar
 
 from .table import Table
 from .gpg import GPG
@@ -56,31 +58,14 @@ class ArchLinux(Table):
                 # 'timestamp'
                 ]
 
-    def __init__(self, conn, db, sources, force=False, clean=False):
+    def __init__(self, conn, db, sources, force=False, clean=False, logger=None):
         super(ArchLinux, self).__init__(conn, db, 'archlinux', 'name', self.attributes, 'sha512')
         self.start()
         self.force = force
         self.sigurlcache = {}
         self.sources = sources
         self.clean = clean
-
-    # TODO inherit from utilprint class
-    def verboseprint(self, *args):
-        # TODO if
-        print(*args)
-
-    def debugprint(self, *args):
-        # TODO if
-        #print(*args)
-        pass
-
-    def error(self, *args):
-        print('Error:', *args)
-        sys.exit(1)
-
-    def warning(self, *args):
-        print('Warning:', *args)
-
+        self.logger = logger or logging.getLogger(__name__)
 
     def parse_pkgbuild(self, pkgbuildpath, pkgname, pkg_repo):
         # Calculate sha256 and sha512 of PKGBUILD at the same time to speed it up
@@ -96,14 +81,13 @@ class ArchLinux(Table):
         # Check if package was already parsed with the given PKGBUILD
         count = r.db(self.db).table(self.table).get_all(sha512, index='sha512').count().run()
         if count > 0 and not self.force:
-            self.verboseprint('Skipping', pkgname)
+            self.logger.info('Skipping', pkgname)
             return
 
         # Parse PKGBUILD information and expand data and packages information
         pkginfo = namcap.load_from_pkgbuild(pkgbuildpath)
         if pkginfo is None:
-            # TODO stop on error?
-            self.warning('Error:', pkgbuildpath ,'is not a valid PKGBUILD') # TODO fix print
+            self.logger.error('Error:', pkgbuildpath, 'is not a valid PKGBUILD') # TODO fix print
             return
 
         # Parse every (split) package
@@ -115,7 +99,7 @@ class ArchLinux(Table):
 
             # Add package data
             if pkg['name'] not in pkg_repo:
-                self.warning('Unknown/outdated repository for package', pkg['name'], 'in PKGBUILD', pkgname)
+                self.logger.error('Unknown/outdated repository for package', pkg['name'], 'in PKGBUILD', pkgname)
                 continue
 
             # Verify that gpg key length
@@ -123,7 +107,7 @@ class ArchLinux(Table):
                 for fingerprint in pkg['validgpgkeys']:
                     if len(fingerprint) != 40:
                         pkg['validgpgkeys'].remove(fingerprint)
-                        self.warning('Invalid fingerprint length', fingerprint, pkgname)
+                        self.logger.error('Invalid fingerprint length', fingerprint, pkgname)
 
             package = {
                 'sha512': sha512,
@@ -146,11 +130,11 @@ class ArchLinux(Table):
 
         # Print insert status
         if ret['inserted']:
-            self.verboseprint('Inserted', pkgname)
+            self.logger.info('Inserted', pkgname)
         elif ret['replaced']:
-            self.verboseprint('Replaced', pkgname)
+            self.logger.info('Replaced', pkgname)
         elif ret['unchanged']:
-            self.verboseprint('Unchanged', pkgname)
+            self.logger.info('Unchanged', pkgname)
         else:
             print(ret)
             sys.exit('Error: unknown database information')
@@ -229,7 +213,7 @@ class ArchLinux(Table):
 
                 # Check expire date
                 if gpgkey['expires'] != '' and timestamp > int(gpgkey['expires']):
-                    self.warning('Key expired:', fingerprint)
+                    self.logger.warn('Key expired:', fingerprint)
                     return 'MID'
 
                 if gpgkey['algo'] in GPG.secure_algos:
@@ -264,13 +248,13 @@ class ArchLinux(Table):
                             url = pkg['source'][i].split('::', 1)[-1]
                         except IndexError:
                             # TODO Some packages are parsed wrong (libreoffice-fresh-i18n)
-                            self.warning('Package', pkg['name'], 'has no valid url for hash')
+                            self.logger.error('Package %s has no valid url for hash', pkg['name'])
                             return 'NA'
                         filename = os.path.basename(pkg['source'][i].split('::', 1)[0])
 
                         # Only check for online archives
                         if (url.startswith('https://') or url.startswith('http://') or url.startswith('ftp://')) and not url.endswith(tuple(GPG.signatures)):
-                            self.warning('Package', pkg['name'], 'has SKIP message digest for archive file', filename)
+                            self.logger.error('Package %s has SKIP message digest for archive file %s', pkg['name'], filename)
                             return 'LOW'
 
         # Check hash algorithm used
@@ -349,7 +333,7 @@ class ArchLinux(Table):
                 if url.startswith('https://'):
                     https_url = self.sources.get_https(url)
                     if https_url and https_url.startswith('http://'):
-                        self.warning('Insecure https -> http redirect', url)
+                        self.logger.warn('Insecure https -> http redirect %s', url)
                         continue
                     # If the URL is None, the webserver refuses head downloads or it does not exist
                     # anymore. Keep calm and dont throw errors.
@@ -451,11 +435,11 @@ class ArchLinux(Table):
             pkg['security'] = 'LOW'
 
         # Print results
-        self.debugprint('sec_gpg', pkg['sec_gpg'])
-        self.debugprint('sec_sig', pkg['sec_sig'])
-        self.debugprint('sec_hash', pkg['sec_hash'])
-        self.debugprint('sec_https', pkg['sec_https'])
-        self.debugprint('security', pkg['security'])
+        self.logger.debug('sec_gpg', pkg['sec_gpg'])
+        self.logger.debug('sec_sig', pkg['sec_sig'])
+        self.logger.debug('sec_hash', pkg['sec_hash'])
+        self.logger.debug('sec_https', pkg['sec_https'])
+        self.logger.debug('security', pkg['security'])
 
         # Add timestamp
         pkg['timestamp'] = timestamp
@@ -481,11 +465,11 @@ class ArchLinux(Table):
             # Print insert status
             pkgname = pkg['name']
             if ret['inserted']:
-                self.verboseprint('Inserted', pkgname)
+                self.logger.info('Inserted', pkgname)
             elif ret['replaced']:
-                self.verboseprint('Updated', pkgname)
+                self.logger.info('Updated', pkgname)
             elif ret['unchanged']:
-                self.verboseprint('Unchanged', pkgname)
+                self.logger.info('Unchanged', pkgname)
             else:
                 print(ret)
                 sys.exit('Error: unknown database information')
