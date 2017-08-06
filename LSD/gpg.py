@@ -113,14 +113,27 @@ class GPG(Table):
 
     def evaluate(self, keys=None):
         ret = r.db(self.db).table(self.table).filter(lambda doc: r.expr(keys).contains(doc['fingerprint']) if keys else True).group('algo', 'length').count().ungroup().order_by('group').run(self.conn)
+        count = r.db(self.db).table(self.table).filter(lambda doc: r.expr(keys).contains(doc['fingerprint']) if keys else True).count().run(self.conn)
 
-        # Convert id into human readable string (RSA 4096)
+        # Collect data. Summarize all algorithms with < 2%
         algorithms = []
         counts = []
+        limit = int(count * 1 / 100)
+        other = 0
+        other_algos = []
         for row in ret:
-            #print(self.gpgAlgorithmIDs[row['group'][0]], row['group'][1], row['reduction']) # TODO verboseprint
-            algorithms += [self.gpgAlgorithmIDs[row['group'][0]] + ' ' + row['group'][1]]
-            counts += [row['reduction']]
+            # Convert id into human readable string (RSA 4096)
+            rowcount = row['reduction']
+            algo = self.gpgAlgorithmIDs[row['group'][0]] + ' ' + row['group'][1]
+            if rowcount < limit:
+                other += rowcount
+                other_algos += ['{} ({})'.format(algo, rowcount)]
+            else:
+                algorithms += [algo]
+                counts += [rowcount]
+        if other:
+            algorithms += ['Other']
+            counts += [other]
 
         # TODO find expired keys
-        return {'algorithms': algorithms, 'counts': counts}
+        return {'algorithms': algorithms, 'counts': counts, 'other_algos': other_algos}

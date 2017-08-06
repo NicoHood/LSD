@@ -42,8 +42,9 @@ class LSA(object):
         print('Warning:', *args)
 
     def plot_gpg(self):
-        trace = Pie(labels=self.gpg['algorithms'], values=self.gpg['counts'])
-        self.plot('GPG Key Distribution', [trace], timestamp=True)
+        colors = ['#2CA02C', '#0077BB', '#FF7F0E', '#D62728', '#9467BD']
+        trace = Pie(labels=self.gpg['algorithms'], values=self.gpg['counts'], marker=dict(colors=colors), sort=False)
+        self.plot('GPG Key Distribution', [trace], timestamp=True, extra_text='<b>Other Algorithms:</b><br>' + '<br>'.join(self.gpg['other_algos']))
 
     def plot_archlinux(self, data, name):
         # Prepare graph data
@@ -264,17 +265,18 @@ class LSA(object):
                     print(pkg['name'] + ': ' + ', '.join(pkg['avail_https']), file=text_file)
             print('Output written to', outfile)
 
-    def plot(self, title, trace, barmode=None, updatemenus=None, timestamp=False):
+    def plot(self, title, trace, barmode=None, updatemenus=None, timestamp=False, extra_text=None):
         if updatemenus:
             layout = Layout(title=title, barmode=barmode, updatemenus=updatemenus)
         else:
             layout = Layout(title=title, barmode=barmode)
         fig = Figure(data=trace, layout=layout)
-        self.plot_figure(fig, timestamp=timestamp)
+        self.plot_figure(fig, timestamp=timestamp, extra_text=extra_text)
 
-    def plot_figure(self, figure, timestamp=False):
+    def plot_figure(self, figure, timestamp=False, extra_text=None):
+        annotations = []
         if timestamp:
-            annotations =[
+            annotations += [
                 dict(
                     text=self.time,
                     x=1,
@@ -284,6 +286,20 @@ class LSA(object):
                     showarrow=False,
                 )
             ]
+        if extra_text:
+            annotations += [
+                dict(
+                    text=extra_text,
+                    x=0,
+                    y=0,
+                    xref="paper",
+                    yref="paper",
+                    showarrow=False,
+                    xanchor='left',
+                    align='left',
+                )
+            ]
+        if annotations:
             figure.layout.update({'annotations': annotations})
 
         filename = figure.layout.title.lower().replace(' ', '_') + '.div'
