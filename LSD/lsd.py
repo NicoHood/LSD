@@ -76,13 +76,10 @@ class Software(Table):
         if 'archlinux' in data and data['archlinux']:
             if archlinux not in data['archlinux']:
                 data['archlinux'] += [archlinux]
-                print('append', name, base, archlinux)
         else:
             data['archlinux'] = [archlinux]
-            print('add')
 
         self.insert(data, update=True)
-        #print(data)
 
     def analyze(self):
 

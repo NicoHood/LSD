@@ -67,7 +67,7 @@ class ArchLinux(Table):
         self.clean = clean
         self.logger = logger or logging.getLogger(__name__)
 
-    def parse_pkgbuild(self, pkgbuildpath, pkgname, pkg_repo):
+    def parse_pkgbuild(self, pkgbuildpath, pkgname, git_repo, pkg_repo):
         # Calculate sha256 and sha512 of PKGBUILD at the same time to speed it up
         hash_sha512 = hashlib.sha512()
         hash_sha256 = hashlib.sha256()
@@ -81,16 +81,17 @@ class ArchLinux(Table):
         # Check if package was already parsed with the given PKGBUILD
         count = r.db(self.db).table(self.table).get_all(sha512, index='sha512').count().run()
         if count > 0 and not self.force:
-            self.logger.info('Skipping', pkgname)
-            return
+            #self.logger.info('Skipping %s', pkgname)
+            return 0
 
         # Parse PKGBUILD information and expand data and packages information
         pkginfo = namcap.load_from_pkgbuild(pkgbuildpath)
         if pkginfo is None:
-            self.logger.error('Error:', pkgbuildpath, 'is not a valid PKGBUILD') # TODO fix print
-            return
+            self.logger.error('%s is not a valid PKGBUILD', pkgbuildpath)
+            return 0
 
         # Parse every (split) package
+        count = 0
         for pkg in (pkginfo.subpackages if pkginfo.is_split else [pkginfo]):
             # Add package base information if available
             if "base" in pkginfo:
@@ -98,7 +99,7 @@ class ArchLinux(Table):
 
             # Add package data
             if pkg['name'] not in pkg_repo:
-                self.logger.error('Unknown/outdated repository for package', pkg['name'], 'in PKGBUILD', pkgname)
+                self.logger.error('Unknown/outdated repository for package %s in PKGBUILD %s', pkg['name'], pkgname)
                 continue
 
             # Verify that gpg key length
@@ -106,7 +107,7 @@ class ArchLinux(Table):
                 for fingerprint in pkg['validgpgkeys']:
                     if len(fingerprint) != 40:
                         pkg['validgpgkeys'].remove(fingerprint)
-                        self.logger.error('Invalid fingerprint length', fingerprint, pkgname)
+                        self.logger.error('Invalid fingerprint length %s %s', fingerprint, pkgname)
 
             package = {
                 'sha512': sha512,
@@ -118,7 +119,23 @@ class ArchLinux(Table):
                     package[attribute] = pkg[attribute]
                 else:
                     package[attribute] = None
+            count = r.db(self.db).table(self.table).get_all(sha512, index='sha512').count().run()
+
+            # TODO fix for other distributions
+            if git_repo == 'packages' and pkg_repo[pkg['name']] == 'community':
+                self.logger.error('Outdated PKGBUILD found in %s but belongs to %s', git_repo, pkg_repo[pkg['name']])
+                continue
+            if git_repo == 'community' and pkg_repo[pkg['name']] != 'community':
+                self.logger.error('Outdated PKGBUILD found in %s but belongs to %s', git_repo, pkg_repo[pkg['name']])
+                continue
+            # TODO catch error where a package is in two PKGBUILDs in the same git repo(gconf-sharp, djview)
+            # to fix this: Create a list of all parsed pkgnames and list duplicates
             self.insert(package, replace=True)
+            count += 1
+
+        if not count:
+            self.logger.error('No package found inside %s', pkgbuildpath)
+        return count
 
     def parse(self, path):
         # Read repositories from packages from local pkglist
@@ -136,6 +153,7 @@ class ArchLinux(Table):
         # TODO print summary how many were inserted/updated/deleted
         print('Parsing PKGBUILD information')
         repositories = os.path.join(path, self.table + '/git')
+        pkgbuild_list = []
         for repo in next(os.walk(repositories))[1]:
             repo_path = os.path.join(repositories, repo)
             if "/." not in repo_path:
@@ -147,7 +165,15 @@ class ArchLinux(Table):
                             if not os.path.exists(pkgbuild):
                                 self.logger.error('PKGBUILD does not exist: %s', pkgbuild)
                                 continue
-                        self.parse_pkgbuild(pkgbuild, package, pkg_repo)
+                        pkgbuild_list += [[pkgbuild, package, repo, pkg_repo]]
+
+        # Parse PKGBUILDs
+        count = 0
+        with progressbar.ProgressBar(max_value=len(pkgbuild_list)) as bar:
+            for i, pkgbuild_param in enumerate(pkgbuild_list):
+                bar.update(i)
+                count += self.parse_pkgbuild(pkgbuild_param[0], pkgbuild_param[1], pkgbuild_param[2], pkgbuild_param[3])
+        print('Inserted/Updated {} packages'.format(count))
 
         # TODO print missing PKGBUILDs for packages in repositories
         # TODO find duplicated PKGBUILDs in "packages" and "community" git repository (moved packages)
