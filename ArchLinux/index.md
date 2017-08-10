@@ -102,7 +102,7 @@ The following assumptions were made in the worst case scenario:
 ### Assumptions
 * GnuPG works correct and is secure
 * Secure and secret GPG keys were used and exchanged correct
-* Packages are secured enough via GPG signatures
+* Packages are secured through GPG signatures
 * Software sources and packages are exchanged over an insecure connection
 * Downloadservers are vulnerable
 
@@ -123,13 +123,61 @@ The following assumptions were made in the worst case scenario:
 ![Insecure_Threadmodel](Insecure.png)
 
 ### GPG
+Changes to the initial thread model:
+
+### Assumptions
+* Software sources are secured through GPG signatures
+
+### Threats
+* None
+
+### Secured Threats
+* The source code gets modified while uploading (GPG)
+* The source code gets modified while downloading (GPG)
+* The source code gets modified on the download server (GPG)
+* Package gets modified while up/downloading (GPG)
+* Package gets modified on the download server (GPG)
+
 ![GPG_Threadmodel](GPG.png)
 
 ### HTTPS
+Changes to the initial thread model:
+
+### Assumptions
+* Software sources are exchanged over a secure HTTPS connection
+
+### Threats
+* The source code gets modified while uploading
+* The source code gets modified on the download server
+
+### Secured Threats
+* The source code gets modified while downloading (HTTPS)
+* Package gets modified while up/downloading (GPG)
+* Package gets modified on the download server (GPG)
+
 ![HTTPS_Threadmodel](HTTPS.png)
 
 ### Hash
+Changes to the initial thread model:
+
+### Assumptions
+* The user wants to build a package on his own with the official PKGBUILD
+* The PKGBUILD is downloaded over a secure channel and verified manually afterwards
+* Secure hash algorithms are used
+
+### Threats
+* The source code gets modified while uploading
+* The source code gets modified while downloading from the packager
+* The source code gets modified on the download server
+
+### Secured Threats
+* The source code gets modified while downloading from the user (hash verification)
+
+## Irrelevant Threats:
+* Package gets modified while up/downloading (Rebuild)
+* Package gets modified on the download server (Rebuild)
+
 ![Hash_Threadmodel](Hash.png)
 
-### Package
+### Best Case Scenario
 ![Secure_Threadmodel](Secure.png)
