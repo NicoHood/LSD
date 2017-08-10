@@ -161,7 +161,7 @@ Changes to the initial thread model:
 ### Hash
 Changes to the initial thread model:
 
-### Assumptions
+#### Assumptions
 * The user wants to build a package on his own with the official PKGBUILD
 * The PKGBUILD is downloaded over a secure channel and verified manually afterwards
 * Secure hash algorithms are used
