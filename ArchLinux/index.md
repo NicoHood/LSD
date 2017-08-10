@@ -18,6 +18,21 @@
 | Low       | Insecure            | Criteria is no met                      |
 | N/A       | Not rated           | Criteria is not available or irrelevant |
 
+### Package
+
+| Rating    | Explanation                  |
+|-----------|------------------------------|
+| Excellent | All criteria >= high         |
+| High      | GPG key + signatures >= high |
+| Mid       | HTTPS >= high                |
+| Low       | Rest                         |
+| N/A       | No sources used              |
+
+<br>
+{% include_relative total_package_security.div %}
+<br>
+{% include_relative total_package_security_table.div %}
+
 ### GPG Key
 
 | Rating    | Explanation                                     |
@@ -80,29 +95,41 @@
 <br>
 {% include_relative total_hash_security_table.div %}
 
-### Package
-
-| Rating    | Explanation                  |
-|-----------|------------------------------|
-| Excellent | All criteria >= high         |
-| High      | GPG key + signatures >= high |
-| Mid       | HTTPS >= high                |
-| Low       | Rest                         |
-| N/A       | No sources used              |
-
-<br>
-{% include_relative total_package_security.div %}
-<br>
-{% include_relative total_package_security_table.div %}
-
 ## Threat Model
 
-### GPG Key
+The following assumptions were made in the worst case scenario:
 
-### GPG Signature
+### Assumptions
+* GnuPG works correct and is secure
+* Secure and secret GPG keys were used and exchanged correct
+* Packages are secured enough via GPG signatures
+* Software sources and packages are exchanged over an insecure connection
+* Downloadservers are vulnerable
+
+### Threats
+* The source code gets modified while uploading
+* The source code gets modified while downloading
+* The source code gets modified on the download server
+
+### Secured Threats
+* Package gets modified while up/downloading (GPG)
+* Package gets modified on the download server (GPG)
+
+### Unconsidered Threats
+* The software contains a security vulnerability
+* The Publisher, Packager or the Pacman Trustchain gets attacked
+* The Pacman Database gets modified (Replay/Downgrade attack)
+
+![Insecure_Threadmodel](Insecure.png)
+
+### GPG
+![GPG_Threadmodel](GPG.png)
 
 ### HTTPS
+![HTTPS_Threadmodel](HTTPS.png)
 
 ### Hash
+![Hash_Threadmodel](Hash.png)
 
 ### Package
+![Secure_Threadmodel](Secure.png)
