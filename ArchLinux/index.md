@@ -99,23 +99,23 @@
 
 The following assumptions were made in the worst case scenario:
 
-### Assumptions
+#### Assumptions
 * GnuPG works correct and is secure
 * Secure and secret GPG keys were used and exchanged correct
 * Packages are secured through GPG signatures
 * Software sources and packages are exchanged over an insecure connection
 * Downloadservers are vulnerable
 
-### Threats
+#### Threats
 * The source code gets modified while uploading
 * The source code gets modified while downloading
 * The source code gets modified on the download server
 
-### Secured Threats
+#### Secured Threats
 * Package gets modified while up/downloading (GPG)
 * Package gets modified on the download server (GPG)
 
-### Unconsidered Threats
+#### Unconsidered Threats
 * The software contains a security vulnerability
 * The Publisher, Packager or the Pacman Trustchain gets attacked
 * The Pacman Database gets modified (Replay/Downgrade attack)
@@ -125,13 +125,13 @@ The following assumptions were made in the worst case scenario:
 ### GPG
 Changes to the initial thread model:
 
-### Assumptions
+#### Assumptions
 * Software sources are secured through GPG signatures
 
-### Threats
+#### Threats
 * None
 
-### Secured Threats
+#### Secured Threats
 * The source code gets modified while uploading (GPG)
 * The source code gets modified while downloading (GPG)
 * The source code gets modified on the download server (GPG)
@@ -143,14 +143,14 @@ Changes to the initial thread model:
 ### HTTPS
 Changes to the initial thread model:
 
-### Assumptions
+#### Assumptions
 * Software sources are exchanged over a secure HTTPS connection
 
-### Threats
+#### Threats
 * The source code gets modified while uploading
 * The source code gets modified on the download server
 
-### Secured Threats
+#### Secured Threats
 * The source code gets modified while downloading (HTTPS)
 * Package gets modified while up/downloading (GPG)
 * Package gets modified on the download server (GPG)
@@ -165,15 +165,15 @@ Changes to the initial thread model:
 * The PKGBUILD is downloaded over a secure channel and verified manually afterwards
 * Secure hash algorithms are used
 
-### Threats
+#### Threats
 * The source code gets modified while uploading
 * The source code gets modified while downloading from the packager
 * The source code gets modified on the download server
 
-### Secured Threats
+#### Secured Threats
 * The source code gets modified while downloading from the user (hash verification)
 
-## Irrelevant Threats:
+#### Irrelevant Threats:
 * Package gets modified while up/downloading (Rebuild)
 * Package gets modified on the download server (Rebuild)
 
