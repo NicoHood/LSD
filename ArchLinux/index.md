@@ -95,8 +95,9 @@
 <br>
 {% include_relative total_hash_security_table.div %}
 
-## Threat Model
+## Threat Models
 
+### Initial Thread Model
 The following assumptions were made in the worst case scenario:
 
 #### Assumptions
@@ -180,4 +181,21 @@ Changes to the initial thread model:
 ![Hash_Threadmodel](Hash.png)
 
 ### Best Case Scenario
+Changes to the initial thread model:
+
+#### Assumptions
+* GnuPG works correct and is secure
+* Secure and secret GPG keys were used and exchanged correct
+* Packages are secured through GPG signatures
+* Software sources are secured through GPG signatures
+* Software sources are exchanged over a secure HTTPS connection
+* Secure hash algorithms are used
+* Downloadservers are secured against attacks and use latest security updates
+
+#### Secured Threats
+* The source code gets modified while uploading (GPG, HTTPS)
+* The source code gets modified while downloading (GPG, HTTPS)
+* The source code gets modified on the download server (GPG, secure server)
+* Package gets modified while up/downloading (GPG, HTTPS)
+* Package gets modified on the download server (GPG, secure server)
 ![Secure_Threadmodel](Secure.png)
