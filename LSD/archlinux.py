@@ -81,7 +81,7 @@ class ArchLinux(Table):
         # Check if package was already parsed with the given PKGBUILD
         count = r.db(self.db).table(self.table).get_all(sha512, index='sha512').count().run()
         if count > 0 and not self.force:
-            #self.logger.info('Skipping %s', pkgname)
+            self.logger.debug('Skipping %s', pkgname)
             return 0
 
         # Parse PKGBUILD information and expand data and packages information
@@ -222,7 +222,7 @@ class ArchLinux(Table):
 
                 # Check expire date
                 if gpgkey['expires'] != '' and timestamp > int(gpgkey['expires']):
-                    self.logger.warn('Key expired:', fingerprint)
+                    self.logger.warn('Key expired: %s', fingerprint)
                     return 'MID'
 
                 if gpgkey['algo'] in GPG.secure_algos:
