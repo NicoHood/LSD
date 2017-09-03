@@ -124,7 +124,7 @@ The following assumptions were made in the worst case scenario:
 ![Insecure_Threadmodel](Insecure.png)
 
 ### GPG
-Changes to the initial thread model:
+Changes to the initial threat model:
 
 #### Assumptions
 * Software sources are secured through GPG signatures
@@ -142,7 +142,7 @@ Changes to the initial thread model:
 ![GPG_Threadmodel](GPG.png)
 
 ### HTTPS
-Changes to the initial thread model:
+Changes to the initial threat model:
 
 #### Assumptions
 * Software sources are exchanged over a secure HTTPS connection
@@ -159,7 +159,7 @@ Changes to the initial thread model:
 ![HTTPS_Threadmodel](HTTPS.png)
 
 ### Hash
-Changes to the initial thread model:
+Changes to the initial threat model:
 
 #### Assumptions
 * The user wants to build a package on his own with the official PKGBUILD
@@ -181,7 +181,7 @@ Changes to the initial thread model:
 ![Hash_Threadmodel](Hash.png)
 
 ### Best Case Scenario
-Changes to the initial thread model:
+Changes to the initial threat model:
 
 #### Assumptions
 * GnuPG works correct and is secure
