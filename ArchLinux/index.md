@@ -10,13 +10,13 @@
 
 ### General Criteria
 
-| Rating    | Security            | Explanation                             |
-|-----------|---------------------|-----------------------------------------|
-| Excellent | Very secure         | Criteria is met optimal                 |
-| High      | Secure              | Criteria is met                         |
-| Mid       | Insufficient secure | Criteria is met partly                  |
-| Low       | Insecure            | Criteria is no met                      |
-| N/A       | Not rated           | Criteria is not available or irrelevant |
+| Rating    | Security            | Explanation                              |
+|-----------|---------------------|------------------------------------------|
+| Excellent | Very secure         | Criterion is met optimal                 |
+| High      | Secure              | Criterion is met                         |
+| Mid       | Insufficient secure | Criterion is met partly                  |
+| Low       | Insecure            | Criterion is no met                      |
+| N/A       | Not rated           | Criterion is not available or irrelevant |
 
 ### Package
 
