@@ -180,7 +180,7 @@ Changes to the initial threat model:
 
 ![Hash_Threadmodel](Hash.png)
 
-### Best Case Scenario
+### Best-Case Scenario
 Changes to the initial threat model:
 
 #### Assumptions
