@@ -98,14 +98,14 @@
 ## Threat Models
 
 ### Initial Thread Model
-The following assumptions were made in the worst case scenario:
+The following assumptions were made in the worst-case scenario:
 
 #### Assumptions
 * GnuPG works correct and is secure
 * Secure and secret GPG keys were used and exchanged correct
 * Packages are secured through GPG signatures
 * Software sources and packages are exchanged over an insecure connection
-* Downloadservers are vulnerable
+* Download servers are vulnerable
 
 #### Threats
 * The source code gets modified while uploading
@@ -190,7 +190,7 @@ Changes to the initial threat model:
 * Software sources are secured through GPG signatures
 * Software sources are exchanged over a secure HTTPS connection
 * Secure hash algorithms are used
-* Downloadservers are secured against attacks and use latest security updates
+* Download servers are secured against attacks and use latest security updates
 
 #### Secured Threats
 * The source code gets modified while uploading (GPG, HTTPS)
